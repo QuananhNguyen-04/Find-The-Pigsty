@@ -7,7 +7,7 @@ import os
 ## nothing, up, left, right, crash, target
 
 def predict(x_pos, y_pos, x_dis, y_dis, turns, counting, special="nothing"):
-    UCB_c = 0.5 if turns < 50 else 20
+    UCB_c = 5 if turns < 50 else 40
     REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -200, 'landed': 100, 'closer': 15, 'further': 0, 'nothing':0}
     GAMMA = 0.985
     model = tf.keras.models.load_model("./rein.keras")

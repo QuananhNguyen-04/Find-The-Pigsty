@@ -29,8 +29,7 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
         (x_pos + (s_bottom - s_top) / 2, y_pos), 
         (x_pos, y_pos + s_height),
         (x_pos + s_bottom, y_pos + s_height)
-        ]
-    )
+        ])
     l1 = pygame.draw.line(screen, (255, 10, 10), (begin, randY), (begin, randY + 30), 2)
     l2 = pygame.draw.line(screen, (255, 10, 10), (end, randY), (end, randY + 30), 2)
     l3 = pygame.draw.line(screen, (0, 255, 150), (begin,randY), (end,randY), 5)
@@ -39,10 +38,10 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
 
 def restart(screen):
     now = time.time()
-    if (now - start_time > 480):
+    if (now - start_time > 400):
         pygame.quit() 
     X = random.randint(40, WIDTH - 40)
-    Y = random.randint(-3, 4) * 50 + 150
+    Y = random.randint(-1, 6) * 50 + 50
     if (Y >= HEIGHT):
         Y -= 55
     x_pos = X
@@ -67,7 +66,7 @@ def restart(screen):
         # action = 0 if action < 0 else (action % 2 + 2) if action > 1 else 1
 
         if win == False:
-            pygame.time.delay(20)
+            # pygame.time.delay(20)
             y_pos += 7
             
             #output pre status
@@ -112,7 +111,7 @@ def restart(screen):
             
             reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
             reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
-            # reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
+            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
             
             pygame.display.flip()
             win = True
