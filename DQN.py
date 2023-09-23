@@ -41,7 +41,7 @@ def restart(screen):
     if (now - start_time > 400):
         pygame.quit() 
     X = random.randint(40, WIDTH - 40)
-    Y = random.randint(-1, 6) * 50 + 50
+    Y = random.randint(1, 7) * 50
     if (Y >= HEIGHT):
         Y -= 55
     x_pos = X
