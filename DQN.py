@@ -34,14 +34,15 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
     l2 = pygame.draw.line(screen, (255, 10, 10), (end, randY), (end, randY + 30), 2)
     l3 = pygame.draw.line(screen, (0, 255, 150), (begin,randY), (end,randY), 5)
     pygame.display.flip()
-    return l1, l2, l3, obj
+    return l3, obj
 
 def restart(screen):
     now = time.time()
     if (now - start_time > 400):
         pygame.quit() 
-    X = random.randint(40, WIDTH - 40)
-    Y = random.randint(1, 7) * 50
+    #limit player position
+    X = random.randint(WIDTH / 2 - 100, WIDTH / 2 + 100)
+    Y = random.randint(0, 3) * 50
     if (Y >= HEIGHT):
         Y -= 55
     x_pos = X
@@ -52,7 +53,7 @@ def restart(screen):
     end = randn + 50
     randY = HEIGHT - 200
     
-    l1, l2, l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
+    l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
     
     running = True
     win = False
@@ -103,9 +104,9 @@ def restart(screen):
                 y_pos -= 25
             turns += 1
 
-            l1, l2, l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
+            l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
 
-        if collision.collide(l1, l2, l3, obj):
+        if collision.collide(l3, obj):
             screen.blit(lose_text, lose_rect)
             special = "crashed"
             
