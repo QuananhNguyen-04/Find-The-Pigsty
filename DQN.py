@@ -38,7 +38,7 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
 
 def restart(screen):
     now = time.time()
-    if (now - start_time > 500):
+    if (now - start_time > 480):
         pygame.quit() 
     #limit player position
     X = random.randint(WIDTH / 2 - 150, WIDTH/2 + 100) / 10.0 * 10.0
@@ -128,25 +128,24 @@ def restart(screen):
             win = False
             restart(screen)
 
-        if obj.top > randY  and obj.top <= randY + 25:
-            if obj.bottomleft[0] >= begin and obj.bottomright[0] <= end:
-                screen.blit(win_text, win_rect)
-                special = "landed"
-                reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, begin, end, turns, special)
-                win = True
-                pygame.display.flip()
-                key = pygame.key.get_pressed()
-                for event in pygame.event.get():
-                    # if key[pygame.K_r]:
-                    #     win = False
-                    #     restart(screen)
-                    if key[pygame.K_ESCAPE]:
-                        pygame.quit()
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                pygame.time.delay(200)
-                win = False
-                restart(screen)
+        if collision.victory(obj):
+            screen.blit(win_text, win_rect)
+            special = "landed"
+            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, begin, end, turns, special)
+            win = True
+            pygame.display.flip()
+            key = pygame.key.get_pressed()
+            for event in pygame.event.get():
+                # if key[pygame.K_r]:
+                #     win = False
+                #     restart(screen)
+                if key[pygame.K_ESCAPE]:
+                    pygame.quit()
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+            pygame.time.delay(200)
+            win = False
+            restart(screen)
 
         if turns == 100:
             restart(screen)

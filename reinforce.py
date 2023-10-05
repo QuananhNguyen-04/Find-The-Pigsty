@@ -11,9 +11,9 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.2 if turns < 50 else 0.7 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.3 if turns < 20 else 0.7 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
-    ALPHA = 0.5 #learning rates
+    ALPHA = 0.003 #learning rates
     
     model = tf.keras.models.load_model("./rein.keras")
     

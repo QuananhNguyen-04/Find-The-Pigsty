@@ -16,7 +16,7 @@ for y in range(-150, 150, 10):
     temp = []
     temp_dir = []
     for x in range(-150, 150, 10):
-        input_tensor = convert_to_tensor(np.array([[x, y]], dtype='float16'))
+        input_tensor = convert_to_tensor(np.array([[x, y, x - 50, x + 50]], dtype='float16'))
         outputY = np.array(model.call(input_tensor))
         outputY = np.reshape(outputY, (-1))
         value = np.max(outputY)
