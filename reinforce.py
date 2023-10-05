@@ -6,18 +6,23 @@ import os
 
 ## nothing, up, left, right, crash, target
 
-def predict(x_pos, y_pos, x_dis, y_dis, turns, counting, special="nothing"):
+def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="nothing"):
     REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -200, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.1 if turns < 30 else 0.4 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.2 if turns < 50 else 0.7 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
-    ALPHA = 0.3 #learning rates
+    ALPHA = 0.5 #learning rates
     
     model = tf.keras.models.load_model("./rein.keras")
     
-    input_tensor = tf.convert_to_tensor(np.array([[x_dis, y_dis]], dtype='float32'))
+    invalid_range = (x_pos - obs_begin, x_pos - obs_end)
+    input_tensor = tf.convert_to_tensor(
+                            np.array([[
+                                x_dis, y_dis, 
+                                invalid_range[0], invalid_range[1]
+                            ]], dtype='float32'))
     Q = np.array(model.call(input_tensor))
     Q = np.reshape(Q, (-1))
     Q_next = np.ones(shape=4, dtype='float16')
@@ -35,8 +40,14 @@ def predict(x_pos, y_pos, x_dis, y_dis, turns, counting, special="nothing"):
             x_later += 15
         elif action == 1:
             y_later -= 25
+        
+        input_tensor = tf.convert_to_tensor(np.array([
+                                        [
+                                        x_later - target_x,     target_y - y_later, 
+                                        x_later - obs_begin,    x_later - obs_end
+                                        ]
+                                    ], dtype='float32'))
 
-        input_tensor = tf.convert_to_tensor(np.array([[x_later - target_x, target_y - y_later]], dtype='float32'))
         outputY = np.array(model.call(input_tensor))
         outputY = np.reshape(outputY, (-1))
         Q_next[action] = np.max(outputY)
@@ -48,22 +59,20 @@ def predict(x_pos, y_pos, x_dis, y_dis, turns, counting, special="nothing"):
         this_reward[action] += REWARD[special]+ (REWARD['closer'] if pre_dis > dis else REWARD['further'])
     
     Q = Q + ALPHA * (this_reward + GAMMA * Q_next - Q)
-    
+    # Q = this_reward + GAMMA * random.randint(-1, 1) * 10 
     explore_rate = random.random()
     if (explore_rate < EPSILON):
         predictions = random.randint(0, 3)
     else:
         predictions = np.argmax(Q)
     
-    counting[predictions] += 1
     actions = np.zeros(shape=4, dtype="int")
     actions[predictions] = 1
-
-    print(f"{x_pos},{y_pos},{x_dis},{y_dis},", end="")
+    print(f"{x_dis},{y_dis},{invalid_range[0]},{invalid_range[1]},", end="")
     print(*actions, sep=",",end="," )
     print(f"{x_later},{y_later},",end="")
     print(Q[predictions], end="\n")
-    return counting, predictions
+    return predictions
 
 # use for initialize Q_next in gen1, 2
 def compute_reward(x_pos, y_pos, x_dis, y_dis, action ,x_later, y_later, special='nothing'):

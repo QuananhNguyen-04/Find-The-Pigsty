@@ -38,7 +38,7 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
 
 def restart(screen):
     now = time.time()
-    if (now - start_time > 400):
+    if (now - start_time > 500):
         pygame.quit() 
     #limit player position
     X = random.randint(WIDTH / 2 - 150, WIDTH/2 + 100) / 10.0 * 10.0
@@ -59,7 +59,6 @@ def restart(screen):
     win = False
 
     special = "nothing" # init for reinforce special reward
-    counting = np.zeros(shape=4) # exploration rate 
     turns = 0 # for various situation
 
     while running:
@@ -73,7 +72,7 @@ def restart(screen):
             #output pre status
             x_dis = obj.centerx - randn
             y_dis = randY - obj.centery + 23
-            counting, action = reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, turns, counting, special)
+            action = reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
             
             #player action
             key = pygame.key.get_pressed()
@@ -110,9 +109,9 @@ def restart(screen):
             screen.blit(lose_text, lose_rect)
             special = "crashed"
             
-            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
-            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
-            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
+            reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
+            reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
+            reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
             
             pygame.display.flip()
             win = True
@@ -133,7 +132,7 @@ def restart(screen):
             if obj.bottomleft[0] >= begin and obj.bottomright[0] <= end:
                 screen.blit(win_text, win_rect)
                 special = "landed"
-                reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, turns, counting, special)
+                reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, begin, end, turns, special)
                 win = True
                 pygame.display.flip()
                 key = pygame.key.get_pressed()
