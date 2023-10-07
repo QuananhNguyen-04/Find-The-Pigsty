@@ -38,7 +38,7 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
 
 def restart(screen):
     now = time.time()
-    if (now - start_time > 480):
+    if (now - start_time > 600):
         pygame.quit() 
     #limit player position
     X = random.randint(WIDTH / 2 - 150, WIDTH/2 + 100) / 10.0 * 10.0
@@ -131,6 +131,7 @@ def restart(screen):
         if collision.victory(obj):
             screen.blit(win_text, win_rect)
             special = "landed"
+            reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, begin, end, turns, special)
             reinforce.predict(obj.centerx, obj.centery,x_dis, y_dis, begin, end, turns, special)
             win = True
             pygame.display.flip()

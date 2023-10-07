@@ -7,58 +7,62 @@ import os
 ## nothing, up, left, right, crash, target
 
 def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="nothing"):
-    REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -200, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
+    REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -100, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.3 if turns < 20 else 0.7 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.4 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
-    ALPHA = 0.003 #learning rates
-    
-    model = tf.keras.models.load_model("./rein.keras")
-    
+    ALPHA = 0.01 #learning rates
     invalid_range = (x_pos - obs_begin, x_pos - obs_end)
-    input_tensor = tf.convert_to_tensor(
-                            np.array([[
-                                x_dis, y_dis, 
-                                invalid_range[0], invalid_range[1]
-                            ]], dtype='float32'))
-    Q = np.array(model.call(input_tensor))
-    Q = np.reshape(Q, (-1))
-    Q_next = np.ones(shape=4, dtype='float16')
-    this_reward = np.zeros(shape=4, dtype='float16')
-
-    target_x, target_y = x_pos - x_dis, y_pos + y_dis
-    pre_dis = pow(pow(x_dis, 2) + pow(y_dis, 2), 1/2)
-
-    for action in range(4):
-        x_later, y_later = x_pos, y_pos
-        y_later += 7
-        if action == 2:
-            x_later -= 15
-        elif action == 3:
-            x_later += 15
-        elif action == 1:
-            y_later -= 25
+    if special != "nothing":
+        x_later, y_later = 0, 0
+        Q = np.zeros(shape=4, dtype='float16') + REWARD[special]
+    else:        
+        model = tf.keras.models.load_model("./rein.keras")
         
-        input_tensor = tf.convert_to_tensor(np.array([
-                                        [
-                                        x_later - target_x,     target_y - y_later, 
-                                        x_later - obs_begin,    x_later - obs_end
-                                        ]
-                                    ], dtype='float32'))
+        input_tensor = tf.convert_to_tensor(
+                                np.array([[
+                                    x_dis, y_dis, 
+                                    invalid_range[0], invalid_range[1]
+                                ]], dtype='float32'))
+        Q = np.array(model.call(input_tensor))
+        Q = np.reshape(Q, (-1))
+        Q_next = np.ones(shape=4, dtype='float16')
+        this_reward = np.zeros(shape=4, dtype='float16')
 
-        outputY = np.array(model.call(input_tensor))
-        outputY = np.reshape(outputY, (-1))
-        Q_next[action] = np.max(outputY)
+        target_x, target_y = x_pos - x_dis, y_pos + y_dis
+        pre_dis = pow(pow(x_dis, 2) + pow(y_dis, 2), 1/2)
 
-        x_later -= target_x
-        y_later = target_y - y_later
-        dis = pow(pow(x_later, 2) + pow(y_later, 2), 1/2)
-        this_reward[action] += REWARD[str(action)]
-        this_reward[action] += REWARD[special]+ (REWARD['closer'] if pre_dis > dis else REWARD['further'])
-    
-    Q = Q + ALPHA * (this_reward + GAMMA * Q_next - Q)
+        for action in range(4):
+            x_later, y_later = x_pos, y_pos
+            y_later += 7
+            if action == 2:
+                x_later -= 15
+            elif action == 3:
+                x_later += 15
+            elif action == 1:
+                y_later -= 25
+            
+            input_tensor = tf.convert_to_tensor(np.array([
+                                            [
+                                            x_later - target_x,     target_y - y_later, 
+                                            x_later - obs_begin,    x_later - obs_end
+                                            ]
+                                        ], dtype='float32'))
+
+            outputY = np.array(model.call(input_tensor))
+            outputY = np.reshape(outputY, (-1))
+            Q_next[action] = np.max(outputY)
+            Q_next[action] = 100 if Q_next[action] > 40 else Q_next[action]
+            Q_next[action] = -100 if Q_next[action] < -40 else Q_next[action]
+            x_later -= target_x
+            y_later = target_y - y_later
+            dis = pow(pow(x_later, 2) + pow(y_later, 2), 1/2)
+            this_reward[action] += REWARD[str(action)]
+            this_reward[action] += (REWARD['closer'] if pre_dis > dis else REWARD['further'])
+        
+        Q = Q + ALPHA * (this_reward + GAMMA * Q_next - Q)
     # Q = this_reward + GAMMA * random.randint(-1, 1) * 10 
     explore_rate = random.random()
     if (explore_rate < EPSILON):
