@@ -38,7 +38,7 @@ def update_draw(screen, x_pos, y_pos, begin, end, randY):
 
 def restart(screen):
     now = time.time()
-    if (now - start_time > 600):
+    if (now - start_time > 800):
         pygame.quit() 
     #limit player position
     X = random.randint(WIDTH / 2 - 150, WIDTH/2 + 100) / 10.0 * 10.0

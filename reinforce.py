@@ -11,7 +11,7 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.4 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.3 if turns < 60 else 0.5 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
     ALPHA = 0.01 #learning rates
     invalid_range = (x_pos - obs_begin, x_pos - obs_end)
