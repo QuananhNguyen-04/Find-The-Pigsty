@@ -7,13 +7,13 @@ import os
 ## nothing, up, left, right, crash, target
 
 def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="nothing"):
-    REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -100, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
+    REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -200, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.3 if turns < 60 else 0.5 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.25 if turns < 60 else 0.5 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
-    ALPHA = 0.01 #learning rates
+    ALPHA = 0.008 #learning rates
     invalid_range = (x_pos - obs_begin, x_pos - obs_end)
     if special != "nothing":
         x_later, y_later = 0, 0
@@ -54,8 +54,6 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
             outputY = np.array(model.call(input_tensor))
             outputY = np.reshape(outputY, (-1))
             Q_next[action] = np.max(outputY)
-            Q_next[action] = 100 if Q_next[action] > 40 else Q_next[action]
-            Q_next[action] = -100 if Q_next[action] < -40 else Q_next[action]
             x_later -= target_x
             y_later = target_y - y_later
             dis = pow(pow(x_later, 2) + pow(y_later, 2), 1/2)
