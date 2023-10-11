@@ -20,10 +20,10 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 win_rect, win_text = Messages.win_rect, Messages.win_text
 lose_rect, lose_text = Messages.lose_rect, Messages.lose_text
 
-def update_draw(screen, x_pos, y_pos, begin, end, randY):
+def update_draw(screen, x_pos, y_pos, begin, end, randY, color):
     screen.fill((30, 60, 60))
     pygame.draw.circle(screen, (155, 155, 155), (WIDTH / 2, HEIGHT * 2), radius= WIDTH)
-    obj = pygame.draw.polygon(screen, (255, 130, 240), 
+    obj = pygame.draw.polygon(screen, color, 
         [
         (x_pos + s_bottom - (s_bottom - s_top) / 2, y_pos), 
         (x_pos + (s_bottom - s_top) / 2, y_pos), 
@@ -53,7 +53,8 @@ def restart(screen):
     end = randn + 50
     randY = HEIGHT - 200
     
-    l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
+    cur_color = (255, 130, 240)
+    l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY, cur_color)
     
     running = True
     win = False
@@ -72,7 +73,7 @@ def restart(screen):
             #output pre status
             x_dis = obj.centerx - randn
             y_dis = randY - obj.centery + 23
-            action = reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
+            action, cur_color = reinforce.predict(obj.centerx, obj.centery, x_dis, y_dis, begin, end, turns, special)
             
             #player action
             key = pygame.key.get_pressed()
@@ -103,7 +104,7 @@ def restart(screen):
                 y_pos -= 25
             turns += 1
 
-            l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY)
+            l3, obj = update_draw(screen, x_pos, y_pos, begin, end, randY, cur_color)
 
         if collision.collide(l3, obj):
             screen.blit(lose_text, lose_rect)

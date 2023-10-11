@@ -63,8 +63,10 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
         Q = Q + ALPHA * (this_reward + GAMMA * Q_next - Q)
     # Q = this_reward + GAMMA * random.randint(-1, 1) * 10 
     explore_rate = random.random()
+    color = (255, 130, 240)
     if (explore_rate < EPSILON):
         predictions = random.randint(0, 3)
+        color = (255, 0, 0)
     else:
         predictions = np.argmax(Q)
     
@@ -74,7 +76,7 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
     print(*actions, sep=",",end="," )
     print(f"{x_later},{y_later},",end="")
     print(Q[predictions], end="\n")
-    return predictions
+    return predictions, color
 
 # use for initialize Q_next in gen1, 2
 def compute_reward(x_pos, y_pos, x_dis, y_dis, action ,x_later, y_later, special='nothing'):
