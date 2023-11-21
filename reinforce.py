@@ -5,15 +5,16 @@ import keras
 import os
 
 ## nothing, up, left, right, crash, target
+model = tf.keras.models.load_model("./rein.keras")
 
 def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="nothing"):
-    REWARD = {'0': 0, '1': 1, '2': -0.5, '3': -0.5, 'crashed': -200, 'landed': 100, 'closer': 15, 'further': 1, 'nothing':0}
+    REWARD = {'0': 0, '1': 0, '2': 0, '3': 0, 'crashed': -200, 'landed': 100, 'closer': 1, 'further': -1, 'nothing':0}
     
     # HYPER-PARAMETERS FOR LEARNING PROCESS
 
-    EPSILON = 0.2 if turns < 60 else 0.5 # SET FOR EPS-GREEDY ALGO
+    EPSILON = 0.1 # SET FOR EPS-GREEDY ALGO
     GAMMA = 1.0 #discount factor 
-    ALPHA = 0.008 #learning rates
+    ALPHA = 0.003 #learning rates
     invalid_range = (x_pos - obs_begin, x_pos - obs_end)
     if special != "nothing":
         x_later, y_later = 0, 0
@@ -45,11 +46,11 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
                 y_later -= 25
             
             input_tensor = tf.convert_to_tensor(np.array([
-                                            [
-                                            x_later - target_x,     target_y - y_later, 
-                                            x_later - obs_begin,    x_later - obs_end
-                                            ]
-                                        ], dtype='float32'))
+                                [
+                                x_later - target_x,     target_y - y_later, 
+                                x_later - obs_begin,    x_later - obs_end
+                                ]
+                            ], dtype='float32'))
 
             outputY = np.array(model.call(input_tensor))
             outputY = np.reshape(outputY, (-1))
@@ -58,9 +59,14 @@ def predict(x_pos, y_pos, x_dis, y_dis, obs_begin, obs_end, turns, special="noth
             y_later = target_y - y_later
             dis = pow(pow(x_later, 2) + pow(y_later, 2), 1/2)
             this_reward[action] += REWARD[str(action)]
-            this_reward[action] += (REWARD['closer'] if pre_dis > dis else REWARD['further'])
+            if pre_dis == dis:
+                this_reward[action] += REWARD['closer']
+            else:
+                this_reward[action] += (REWARD['closer'] * dis / (pre_dis - dis) if pre_dis > dis
+                               else REWARD['further'] * dis / (dis - pre_dis))
         
         Q = Q + ALPHA * (this_reward + GAMMA * Q_next - Q)
+        
     # Q = this_reward + GAMMA * random.randint(-1, 1) * 10 
     explore_rate = random.random()
     color = (255, 130, 240)

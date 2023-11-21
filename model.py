@@ -30,5 +30,5 @@ if any(num == np.nan for num in value):
 # model.fit(state, value,epochs=70)
 
 model = tf.keras.models.load_model("rein.keras")
-model.fit(state, value, epochs = 30)
+model.fit(state, value, epochs = 50)
 model.save("rein.keras")
