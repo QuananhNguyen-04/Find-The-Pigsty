@@ -42,7 +42,7 @@ def restart(screen):
         pygame.quit() 
     #limit player position
     X = random.randint(WIDTH / 2 - 100, WIDTH/2 + 70) / 10.0 * 10.0
-    Y = random.randint(1, 3) * 50
+    Y = random.randint(2, 3) * 50 - 10
     if (Y >= HEIGHT):
         Y -= 55
     x_pos = X
